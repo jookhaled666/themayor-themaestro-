@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusDash - IT & Media Buyer Report</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Blob Animation for Background */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 15s infinite alternate;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+
+        /* Hide scrollbar for nav but allow scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#09090b] text-gray-100 font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
+
+    <!-- Liquid Glass Background Effects -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-indigo-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob pointer-events-none z-0"></div>
+    <div class="fixed top-[20%] right-[-10%] w-[35rem] h-[35rem] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob animation-delay-2000 pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-20%] left-[20%] w-[45rem] h-[45rem] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob animation-delay-4000 pointer-events-none z-0"></div>
+
+    <!-- Mobile Header Toggle -->
+    <div class="lg:hidden fixed top-0 w-full h-16 bg-white/5 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-4">
+        <div class="flex items-center gap-3">
+            <img src="https://image2url.com/r2/default/images/1772760721974-948a7813-3a62-4bb4-8c73-d95a1249ab87.png" alt="The Maestro" class="h-7 w-auto max-w-[90px] object-contain drop-shadow-md" />
+            <span class="text-white/20 font-light text-xl mb-1">|</span>
+            <img src="https://image2url.com/r2/default/images/1772760620005-e1bdb75c-7f91-4bf0-bc3d-bbb687647e41.png" alt="The Mayor" class="h-7 w-auto max-w-[90px] object-contain drop-shadow-md" />
+        </div>
+        <button onclick="toggleMobileMenu()" class="p-2 text-gray-300 hover:text-white">
+            <i id="menu-icon" data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-black/40 backdrop-blur-2xl border-r border-white/10 z-40 flex flex-col transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 lg:top-0">
+        <div class="hidden lg:flex h-20 items-center justify-center px-4 border-b border-white/10 w-full">
+            <div class="flex items-center gap-4">
+                <img src="https://image2url.com/r2/default/images/1772760721974-948a7813-3a62-4bb4-8c73-d95a1249ab87.png" alt="The Maestro" class="h-8 w-auto max-w-[90px] object-contain drop-shadow-lg transition-transform hover:scale-105" />
+                <span class="text-white/20 font-light text-2xl mb-1">|</span>
+                <img src="https://image2url.com/r2/default/images/1772760620005-e1bdb75c-7f91-4bf0-bc3d-bbb687647e41.png" alt="The Mayor" class="h-8 w-auto max-w-[90px] object-contain drop-shadow-lg transition-transform hover:scale-105" />
+            </div>
+        </div>
+        
+        <div class="p-6 flex-1 overflow-y-auto">
+            <p class="px-3 text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Ad Accounts</p>
+            <nav class="space-y-2" id="sidebar-nav">
+                <!-- Dynamically populated via JS -->
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 lg:ml-64 flex flex-col min-h-screen pt-16 lg:pt-0 relative z-10">
+        
+        <!-- Top Header -->
+        <header class="h-20 bg-white/5 backdrop-blur-lg border-b border-white/10 px-4 md:px-8 flex flex-col md:flex-row justify-center md:justify-between items-start md:items-center sticky top-16 lg:top-0 z-20">
+            <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 mb-2 md:mb-0">
+                <div id="header-logo-container" class="hidden sm:flex items-center justify-center bg-white/5 border border-white/10 rounded-xl p-1.5 h-10 w-10 shrink-0">
+                    <img id="header-logo" src="" alt="Brand Logo" class="w-full h-full object-contain" />
+                </div>
+                <h1 id="header-title" class="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                    Report
+                </h1>
+                <span class="inline-flex px-3 py-1 bg-white/10 text-gray-300 text-xs font-bold rounded-full border border-white/5 backdrop-blur-sm self-start mt-1 md:mt-0">
+                    Period: Q1 2026
+                </span>
+            </div>
+            <div class="flex items-center gap-3 absolute right-4 top-1/2 -translate-y-1/2 md:relative md:top-0 md:translate-y-0">
+                <button class="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/5 text-white text-sm font-bold rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                    <i data-lucide="globe" class="w-4 h-4"></i> EN
+                </button>
+                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold rounded-xl hover:shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all">
+                    <i data-lucide="printer" class="w-4 h-4"></i> <span class="hidden sm:inline">Export PDF</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sub Navigation Tabs -->
+        <div class="bg-black/20 px-4 md:px-8 border-b border-white/10 overflow-x-auto no-scrollbar">
+            <nav class="flex gap-2 md:gap-6 min-w-max py-2" id="tabs-nav">
+                <!-- Dynamically populated via JS -->
+            </nav>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div id="dynamic-content" class="p-4 md:p-8 max-w-7xl mx-auto w-full flex-1">
+            <!-- Content gets injected here -->
+        </div>
+
+        <!-- Watermark / Footer -->
+        <footer class="w-full py-6 mt-auto border-t border-white/5 bg-black/10 backdrop-blur-sm relative z-20">
+            <div class="flex items-center justify-center gap-2 text-white/30 hover:text-white/50 transition-colors duration-300">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-blue-500/50"></i>
+                <p class="text-xs font-medium tracking-widest uppercase">
+                    Engineered by the <span class="font-bold text-white/50">IT & Media Buyer</span> Team
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- Data ---
+        const reportsData = {
+            maestro: {
+                id: 'maestro',
+                name: 'The Maestro',
+                logo: "https://image2url.com/r2/default/images/1772760721974-948a7813-3a62-4bb4-8c73-d95a1249ab87.png",
+                currentSituation: { followers: '6,055', posts: '193' },
+                kpis: [
+                    { title: 'Cost Per Lead (CPL)', value: '148.50', unit: 'AED', subtitle: 'Normal Range (140 - 155 AED)', status: 'Stable', statusColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
+                    { title: 'Click-Through Rate (CTR)', value: '1.28%', unit: '', subtitle: 'Benchmark: 1.5%+', status: 'Average', statusColor: 'bg-amber-500/20 text-amber-400 border border-amber-500/30' }
+                ],
+                funnel: { impressions: '26,757', reach: '12,972', clicks: '77' },
+                platforms: [
+                    { name: 'Instagram Direct (Primary)', type: 'INSTAGRAM', status: 'Active', isIssue: false }
+                ],
+                engagement: {
+                    breakdown: { reactions: 345, saves: 185, shares: 82, comments: 34 },
+                    quality: { ctr: '1.28%', outbound: 58, outboundRate: '0.22%' }
+                },
+                technical: {
+                    healthScore: 82,
+                    metrics: [
+                        { label: 'Website Load Speed', value: '1.8s', status: 'Optimal', icon: 'zap' },
+                        { label: 'Bounce Rate', value: '42%', status: 'Average', icon: 'activity' },
+                        { label: 'API Conversion Match', value: '94%', status: 'Excellent', icon: 'database' }
+                    ],
+                    tracking: [
+                        { name: 'Meta Pixel (Events)', status: 'Active', detail: 'Fires perfectly on Lead gen.' },
+                        { name: 'Conversions API (CAPI)', status: 'Warning', detail: 'Event Match Quality is 4.2/10 (Missing Email).' },
+                        { name: 'UTM Tracking', status: 'Active', detail: '100% implementation on Ad Links.' }
+                    ],
+                    devices: { mobile: 78, desktop: 22 }
+                },
+                strategy: {
+                    winnerCreative: {
+                        link: "https://www.instagram.com/reel/DHWmJ--TRgK/?igsh=MW5lbXEydndub2hyaw==",
+                        recommendation: "This reel achieved the lowest Cost Per Lead (CPL) and highest engagement retention. We strongly recommend replicating this exact format—focusing on the same hook style, visual pacing, and call-to-action to scale results efficiently."
+                    },
+                    actionPlan: [
+                        "Replicate the hook framework of the Winner Creative for the next 3 batches.",
+                        "Increase budget allocation by 30% to campaigns utilizing this video style.",
+                        "A/B test the first 3 seconds of this reel to find even cheaper lead opportunities.",
+                        "Scale the winner format across other platforms (TikTok/Shorts)."
+                    ]
+                }
+            },
+            mayor: {
+                id: 'mayor',
+                name: 'The Mayor',
+                logo: "https://image2url.com/r2/default/images/1772760620005-e1bdb75c-7f91-4bf0-bc3d-bbb687647e41.png",
+                currentSituation: { followers: '20.1K', posts: '319' },
+                kpis: [
+                    { title: 'Cost Per Lead (CPL)', value: '100.00', unit: 'AED', subtitle: 'Target Rate Achieved', status: 'Excellent', statusColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
+                    { title: 'Click-Through Rate (CTR)', value: '2.45%', unit: '', subtitle: 'Benchmark: 1.5%+', status: 'Excellent', statusColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' }
+                ],
+                funnel: { impressions: '185,420', reach: '92,100', clicks: '1,240' },
+                platforms: [
+                    { name: 'Instagram Direct (Primary)', type: 'INSTAGRAM', status: 'Active', isIssue: false }
+                ],
+                engagement: {
+                    breakdown: { reactions: '3,450', saves: 820, shares: '1,150', comments: 412 },
+                    quality: { ctr: '2.45%', outbound: 985, outboundRate: '0.53%' }
+                },
+                technical: {
+                    healthScore: 96,
+                    metrics: [
+                        { label: 'Algorithm Reach Ratio', value: '85%', status: 'Viral', icon: 'globe' },
+                        { label: 'Reel Retention Rate', value: '62%', status: 'Excellent', icon: 'activity' },
+                        { label: 'Content Saturation', value: 'Low', status: 'Optimal', icon: 'zap' }
+                    ],
+                    tracking: [
+                        { name: 'Follower vs Non-Follower Reach', status: 'Active', detail: '75% of reach comes from Explore/Reels tab.' },
+                        { name: 'Hashtag Indexing', status: 'Active', detail: 'Ranked top 10 in #DubaiEvents & #CelebrityMgmt.' },
+                        { name: 'Audio Trend Utilization', status: 'Excellent', detail: 'Using trending audio in first 48 hours of trend curve.' }
+                    ],
+                    devices: { mobile: 96, desktop: 4 }
+                },
+                strategy: {
+                    winnerCreative: {
+                        link: "#",
+                        image: "https://image2url.com/r2/default/images/1772760507592-27fc206d-b6c4-4286-9b5d-79da43034c2f.jpeg",
+                        recommendation: "This Reel was a massive success. We need to replicate this style, pacing, and overall aesthetic. As a new testing direction, we are shifting to Arabic-spoken content (محتوى بالعربي) to heavily engage the local demographic and measure retention.",
+                        hint: "💡 Insight: This specific winning Reel was executed as a Dark Ad."
+                    },
+                    actionPlan: [
+                        "Replicate the visual and hook style of the Winner Creative.",
+                        "Launch an A/B test with 100% Arabic-spoken content.",
+                        "Leverage Dark Ads strategy for high-potential Reels.",
+                        "Optimize posting schedule based on audience peak activity hours."
+                    ]
+                }
+            }
+        };
+
+        const tabsData = [
+            { id: 'overview', name: 'Overview (KPIs)', icon: 'bar-chart-3' },
+            { id: 'engagement', name: 'Engagement', icon: 'users' },
+            { id: 'technical', name: 'Technical Analysis', icon: 'settings' },
+            { id: 'strategy', name: 'Future Strategy', icon: 'target' }
+        ];
+
+        // --- State ---
+        let activeAccount = 'maestro';
+        let activeTab = 'overview';
+        let isMobileMenuOpen = false;
+
+        // --- DOM Elements ---
+        const sidebarNav = document.getElementById('sidebar-nav');
+        const tabsNav = document.getElementById('tabs-nav');
+        const dynamicContent = document.getElementById('dynamic-content');
+        const headerLogo = document.getElementById('header-logo');
+        const headerTitle = document.getElementById('header-title');
+
+        // --- Core Functions ---
+
+        function init() {
+            renderSidebar();
+            renderTabs();
+            updateHeader();
+            renderContent();
+            lucide.createIcons();
+        }
+
+        function setAccount(accountId) {
+            activeAccount = accountId;
+            isMobileMenuOpen = false;
+            updateMobileMenuUI();
+            renderSidebar();
+            updateHeader();
+            renderContent();
+            lucide.createIcons();
+        }
+
+        function setTab(tabId) {
+            activeTab = tabId;
+            renderTabs();
+            renderContent();
+            lucide.createIcons();
+        }
+
+        function toggleMobileMenu() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            updateMobileMenuUI();
+        }
+
+        function updateMobileMenuUI() {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.getElementById('menu-icon');
+            
+            if (isMobileMenuOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0', 'top-16');
+                menuIcon.setAttribute('data-lucide', 'x');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0', 'top-16');
+                menuIcon.setAttribute('data-lucide', 'menu');
+                document.body.style.overflow = 'unset';
+            }
+            lucide.createIcons();
+        }
+
+        // --- Render Functions ---
+
+        function renderSidebar() {
+            sidebarNav.innerHTML = Object.values(reportsData).map(account => {
+                const isActive = activeAccount === account.id;
+                const activeClass = isActive 
+                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]' 
+                    : 'text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent';
+                const dotClass = isActive ? (account.id === 'maestro' ? 'bg-blue-400' : 'bg-purple-400') : 'bg-gray-600';
+                
+                return `
+                <button onclick="setAccount('${account.id}')" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all duration-300 ${activeClass}">
+                    <div class="flex items-center justify-center w-7 h-7 rounded-md bg-white/5 border border-white/10 shrink-0 overflow-hidden p-0.5">
+                        <img src="${account.logo}" alt="${account.name}" class="w-full h-full object-contain drop-shadow-md" />
+                    </div>
+                    ${account.name}
+                </button>
+                `;
+            }).join('');
+        }
+
+        function renderTabs() {
+            tabsNav.innerHTML = tabsData.map(tab => {
+                const isActive = activeTab === tab.id;
+                const activeClass = isActive
+                    ? 'bg-white/10 md:bg-transparent md:border-blue-500 text-blue-400' 
+                    : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-white/5 md:hover:bg-transparent md:hover:border-white/20';
+                
+                return `
+                <button onclick="setTab('${tab.id}')" class="flex items-center gap-2 py-3 px-3 md:px-1 rounded-lg md:rounded-none md:border-b-2 text-sm font-bold transition-all ${activeClass}">
+                    <i data-lucide="${tab.icon}" class="w-4 h-4"></i>
+                    ${tab.name}
+                </button>
+                `;
+            }).join('');
+        }
+
+        function updateHeader() {
+            const data = reportsData[activeAccount];
+            headerLogo.src = data.logo;
+            headerTitle.textContent = `${data.name} Report`;
+        }
+
+        function renderContent() {
+            const data = reportsData[activeAccount];
+            let html = '';
+
+            if (activeTab === 'overview') {
+                html = getOverviewHTML(data);
+            } else if (activeTab === 'engagement') {
+                html = getEngagementHTML(data.engagement);
+            } else if (activeTab === 'technical') {
+                html = getTechnicalHTML(data.technical);
+            } else if (activeTab === 'strategy') {
+                html = getStrategyHTML(data.strategy);
+            }
+
+            dynamicContent.innerHTML = html;
+        }
+
+        // --- HTML Generators for Tabs ---
+
+        const GlassCard = (children, extraClass = "") => `
+            <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] ${extraClass}">
+                ${children}
+            </div>
+        `;
+
+        function getOverviewHTML(data) {
+            const topFormatsHtml = data.currentSituation.topFormats ? 
+                `<span class="text-xs font-bold px-2.5 py-1 bg-white/10 text-gray-300 rounded-lg border border-white/5 mt-1 sm:mt-0">${data.currentSituation.topFormats}</span>` : '';
+
+            const kpisHtml = data.kpis.map(kpi => `
+                <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-6 flex flex-col justify-between relative overflow-hidden group hover:bg-white/10 transition-all duration-500">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    <p class="text-sm font-medium text-gray-400 mb-2">${kpi.title}</p>
+                    <div class="flex items-baseline gap-1">
+                        <h3 class="text-3xl font-black text-white tracking-tight">${kpi.value}</h3>
+                        ${kpi.unit ? `<span class="text-sm font-bold text-gray-400">${kpi.unit}</span>` : ''}
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                        <span class="text-xs font-medium text-gray-500">${kpi.subtitle}</span>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded-md ${kpi.statusColor}">${kpi.status}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            const platformsHtml = data.platforms.map(platform => {
+                const iconBg = platform.type === 'INSTAGRAM' ? 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white' : 'bg-green-500/20 text-green-400';
+                const iconName = platform.type === 'INSTAGRAM' ? 'instagram' : 'message-circle';
+                const statusBg = platform.isIssue ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20';
+                const statusIcon = platform.isIssue ? 'alert-circle' : 'check-circle-2';
+
+                return `
+                <div class="p-4 rounded-xl border border-white/5 bg-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 rounded-lg ${iconBg}">
+                            <i data-lucide="${iconName}" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400">${platform.type}</p>
+                            <p class="text-sm font-semibold text-gray-200">${platform.name}</p>
+                        </div>
+                    </div>
+                    <div class="inline-flex items-center self-start sm:self-auto gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border ${statusBg}">
+                        <i data-lucide="${statusIcon}" class="w-3.5 h-3.5"></i>
+                        ${platform.status}
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            return `
+            <div class="space-y-6 animate-fadeIn">
+                <!-- Current Situation -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${GlassCard(`
+                        <div class="p-4 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20"><i data-lucide="users" class="w-7 h-7"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-400">Total Followers</p>
+                            <h4 class="text-3xl font-black text-white tracking-tight">${data.currentSituation.followers}</h4>
+                        </div>
+                    `, "p-5 flex items-center gap-4")}
+                    
+                    ${GlassCard(`
+                        <div class="p-4 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20"><i data-lucide="instagram" class="w-7 h-7"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-400">Total Posts</p>
+                            <div class="flex flex-wrap items-center gap-2 md:gap-3">
+                                <h4 class="text-3xl font-black text-white tracking-tight">${data.currentSituation.posts}</h4>
+                                ${topFormatsHtml}
+                            </div>
+                        </div>
+                    `, "p-5 flex items-center gap-4")}
+                </div>
+
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${kpisHtml}
+                </div>
+
+                <!-- Lower Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1">
+                        ${GlassCard(`
+                            <h3 class="text-base font-bold text-white mb-6">Platform Traffic Split<br/><span class="text-xs text-gray-400 font-normal">Source Distribution</span></h3>
+                            <div class="space-y-4">${platformsHtml}</div>
+                        `, "p-6 h-full")}
+                    </div>
+                    <div class="lg:col-span-2">
+                        ${GlassCard(`
+                            <h3 class="text-base font-bold text-white mb-6">Customer Funnel<br/><span class="text-xs text-gray-400 font-normal">Journey Drop-off</span></h3>
+                            <div class="flex-1 flex flex-col justify-center gap-6">
+                                <div class="relative group">
+                                    <div class="flex justify-between items-end mb-2 px-1">
+                                        <span class="text-sm font-medium text-gray-300">Impressions</span>
+                                        <span class="text-lg font-black text-blue-400">${data.funnel.impressions}</span>
+                                    </div>
+                                    <div class="w-full bg-white/5 h-8 rounded-lg overflow-hidden relative border border-white/10">
+                                        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600/80 to-blue-400/80 w-full shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+                                    </div>
+                                </div>
+                                <div class="relative group">
+                                    <div class="flex justify-between items-end mb-2 px-1">
+                                        <span class="text-sm font-medium text-gray-300">Reach</span>
+                                        <span class="text-lg font-black text-indigo-400">${data.funnel.reach}</span>
+                                    </div>
+                                    <div class="w-full bg-white/5 h-8 rounded-lg overflow-hidden relative border border-white/10 flex justify-center">
+                                    <div class="absolute inset-y-0 bg-gradient-to-r from-indigo-600/80 to-indigo-400/80 w-[75%] rounded-lg shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                                    </div>
+                                </div>
+                                <div class="relative group">
+                                    <div class="flex justify-between items-end mb-2 px-1">
+                                        <span class="text-sm font-medium text-gray-300">Link Clicks</span>
+                                        <span class="text-lg font-black text-purple-400">${data.funnel.clicks}</span>
+                                    </div>
+                                    <div class="w-full bg-white/5 h-8 rounded-lg overflow-hidden relative border border-white/10 flex justify-center">
+                                    <div class="absolute inset-y-0 bg-gradient-to-r from-purple-600/80 to-purple-400/80 w-[30%] rounded-lg shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `, "p-6 h-full flex flex-col")}
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        function getEngagementHTML(data) {
+            const metrics = [
+                { label: 'Reactions', value: data.breakdown.reactions, icon: 'heart', color: 'text-red-400', bg: 'bg-red-500/10 border border-red-500/20' },
+                { label: 'Saves', value: data.breakdown.saves, icon: 'bookmark', color: 'text-blue-400', bg: 'bg-blue-500/10 border border-blue-500/20' },
+                { label: 'Shares', value: data.breakdown.shares, icon: 'share-2', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border border-emerald-500/20' },
+                { label: 'Comments', value: data.breakdown.comments, icon: 'message-circle', color: 'text-purple-400', bg: 'bg-purple-500/10 border border-purple-500/20' }
+            ];
+
+            const breakdownHtml = metrics.map(item => GlassCard(`
+                <div class="p-3 rounded-xl ${item.bg} ${item.color}">
+                    <i data-lucide="${item.icon}" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 mb-1">${item.label}</p>
+                    <h4 class="text-2xl font-black text-white leading-none">${item.value}</h4>
+                </div>
+            `, "p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-white/10 transition-colors")).join('');
+
+            return `
+            <div class="space-y-8 animate-fadeIn">
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-4">Engagement Breakdown<br/><span class="text-sm text-gray-400 font-normal">Interaction Metrics</span></h3>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        ${breakdownHtml}
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-4">Content Quality Score<br/><span class="text-sm text-gray-400 font-normal">Algorithm Favorability</span></h3>
+                    ${GlassCard(`
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-white/10">
+                            <div class="flex flex-col items-center justify-center p-4">
+                                <div class="w-14 h-14 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                                    <i data-lucide="mouse-pointer-click" class="w-6 h-6"></i>
+                                </div>
+                                <p class="text-sm font-bold text-gray-400 mb-1">CTR</p>
+                                <h4 class="text-3xl font-black text-white">${data.quality.ctr}</h4>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-4">
+                                <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                                    <i data-lucide="external-link" class="w-6 h-6"></i>
+                                </div>
+                                <p class="text-sm font-bold text-gray-400 mb-1">Outbound Clicks</p>
+                                <h4 class="text-3xl font-black text-white">${data.quality.outbound}</h4>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-4">
+                                <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                                    <i data-lucide="percent" class="w-6 h-6"></i>
+                                </div>
+                                <p class="text-sm font-bold text-gray-400 mb-1">Outbound Rate</p>
+                                <h4 class="text-3xl font-black text-white">${data.quality.outboundRate}</h4>
+                            </div>
+                        </div>
+                    `, "p-6")}
+                </section>
+            </div>
+            `;
+        }
+
+        function getTechnicalHTML(data) {
+            const circleColor = data.healthScore > 90 ? "#10B981" : "#3B82F6";
+            const strokeOffset = 377 - (377 * data.healthScore) / 100;
+
+            const metricsHtml = data.metrics.map(metric => {
+                const isGood = metric.status === 'Optimal' || metric.status === 'Excellent' || metric.status === 'Viral';
+                return `
+                <div class="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/5">
+                    <div class="flex items-center gap-4">
+                        <div class="p-2 bg-white/5 rounded-lg text-gray-300">
+                            <i data-lucide="${metric.icon}" class="w-4.5 h-4.5"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-300">${metric.label}</p>
+                            <p class="text-xs mt-1 ${isGood ? 'text-emerald-400' : 'text-amber-400'}">${metric.status}</p>
+                        </div>
+                    </div>
+                    <span class="text-xl font-black text-white">${metric.value}</span>
+                </div>
+                `;
+            }).join('');
+
+            const trackingHtml = data.tracking.map(track => {
+                const isGood = track.status === 'Active' || track.status === 'Excellent';
+                const statusClass = isGood ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                return `
+                <div class="flex flex-col gap-2 p-4 rounded-xl border border-white/5 bg-black/20">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-gray-200">${track.name}</span>
+                        <span class="text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded border ${statusClass}">${track.status}</span>
+                    </div>
+                    <p class="text-xs text-gray-400">${track.detail}</p>
+                </div>
+                `;
+            }).join('');
+
+            return `
+            <div class="space-y-8 animate-fadeIn">
+                ${GlassCard(`
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-black text-white mb-2">System Health & Tracking</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed max-w-lg">
+                            Analyzing the technical backend of your ad accounts, pixel firing rates, API matches, and algorithm indexing.
+                        </p>
+                    </div>
+                    <div class="relative w-32 h-32 flex items-center justify-center mt-4 md:mt-0">
+                        <svg class="transform -rotate-90 w-32 h-32">
+                            <circle cx="64" cy="64" r="60" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none" />
+                            <circle cx="64" cy="64" r="60" stroke="${circleColor}" stroke-width="8" fill="none" stroke-dasharray="377" stroke-dashoffset="${strokeOffset}" class="transition-all duration-1000 ease-out" />
+                        </svg>
+                        <div class="absolute flex flex-col items-center justify-center">
+                            <span class="text-3xl font-black text-white">${data.healthScore}</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest">Score</span>
+                        </div>
+                    </div>
+                `, "p-8 flex flex-col md:flex-row items-center justify-between gap-8 bg-gradient-to-r from-white/5 to-white/0 border-blue-500/20")}
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    ${GlassCard(`
+                        <h4 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                            <i data-lucide="cpu" class="text-purple-400 w-5 h-5"></i> Advanced Metrics
+                        </h4>
+                        <div class="space-y-5">${metricsHtml}</div>
+                    `, "p-6")}
+
+                    <div class="space-y-6">
+                        ${GlassCard(`
+                            <h4 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                                <i data-lucide="shield-check" class="text-blue-400 w-5 h-5"></i> Diagnostics & Tracking
+                            </h4>
+                            <div class="space-y-4">${trackingHtml}</div>
+                        `, "p-6")}
+
+                        ${GlassCard(`
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-sm font-bold text-white">Device Split</h4>
+                            </div>
+                            <div class="flex h-4 rounded-full overflow-hidden bg-white/10">
+                                <div style="width: ${data.devices.mobile}%" class="bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                                <div style="width: ${data.devices.desktop}%" class="bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                            </div>
+                            <div class="flex justify-between mt-3 text-xs font-bold">
+                                <span class="text-indigo-400 flex items-center gap-1"><i data-lucide="smartphone" class="w-3 h-3"></i> Mobile ${data.devices.mobile}%</span>
+                                <span class="text-pink-400 flex items-center gap-1"><i data-lucide="monitor" class="w-3 h-3"></i> Desktop ${data.devices.desktop}%</span>
+                            </div>
+                        `, "p-6")}
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        function getStrategyHTML(data) {
+            const hintHtml = data.winnerCreative.hint ? `
+                <div class="inline-block mt-4 p-3 bg-white/5 border border-white/10 rounded-xl text-sm text-amber-300/80 max-w-2xl shadow-sm">
+                    ${data.winnerCreative.hint}
+                </div>
+            ` : '';
+
+            const linkHtml = (data.winnerCreative.link && data.winnerCreative.link !== "#") ? `
+                <div class="pt-4">
+                    <a href="${data.winnerCreative.link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white text-sm font-bold rounded-xl hover:shadow-[0_0_25px_rgba(236,72,153,0.5)] transition-all transform hover:-translate-y-1">
+                        <i data-lucide="video" class="w-4.5 h-4.5"></i> Watch Winner Reel <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </a>
+                </div>
+            ` : '';
+
+            const imageHtml = data.winnerCreative.image ? `
+                <img src="${data.winnerCreative.image}" alt="Winner Creative Thumbnail" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/video:opacity-90 transition-opacity duration-500" />
+            ` : '';
+
+            const darkAdTag = (data.winnerCreative.hint && data.winnerCreative.hint.includes('Dark Ad')) ? `
+                <span class="text-[10px] font-bold text-white bg-purple-600/80 px-2 py-1 rounded backdrop-blur-md border border-purple-500/50 uppercase tracking-wider">Dark Ad</span>
+            ` : '';
+
+            const actionPlanHtml = data.actionPlan.map(plan => `
+                <div class="flex items-start gap-4 p-5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                    <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 mt-0.5 shrink-0">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-300 leading-relaxed">${plan}</span>
+                </div>
+            `).join('');
+
+            return `
+            <div class="space-y-8 animate-fadeIn">
+                ${GlassCard(`
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full filter blur-[80px] group-hover:bg-indigo-400/30 transition-all duration-700 pointer-events-none"></div>
+                    
+                    <div class="flex flex-col md:flex-row gap-8 items-start relative z-10">
+                        <div class="flex-1 space-y-4">
+                            <div>
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-bold mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                                    <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Key Insight
+                                </div>
+                                <h3 class="text-2xl font-black text-white">Winner Creative</h3>
+                                <p class="text-gray-400 mt-1 text-sm">Identified top-performing asset for scaling.</p>
+                            </div>
+                            
+                            <p class="text-gray-300 text-base leading-relaxed max-w-2xl border-l-2 border-indigo-500/50 pl-4 mt-4">
+                                ${data.winnerCreative.recommendation}
+                            </p>
+                            
+                            ${hintHtml}
+                            ${linkHtml}
+                        </div>
+
+                        <div class="w-full md:w-64 aspect-[4/5] md:aspect-video bg-black/60 rounded-xl border border-white/10 flex items-center justify-center relative overflow-hidden group/video shadow-2xl shrink-0 mt-6 md:mt-0">
+                            ${imageHtml}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+                            <div class="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center z-20 group-hover/video:scale-110 group-hover/video:bg-white/20 transition-all border border-white/20 cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white ml-1"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                            </div>
+                            <div class="absolute bottom-4 left-4 z-20 flex flex-col items-start gap-2">
+                                <span class="text-[10px] font-bold text-white bg-indigo-500/80 px-2 py-1 rounded backdrop-blur-md border border-indigo-400/50 uppercase tracking-wider">Top Reel</span>
+                                ${darkAdTag}
+                            </div>
+                        </div>
+                    </div>
+                `, "p-8 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20 relative overflow-hidden group")}
+
+                <div class="grid grid-cols-1 gap-6">
+                    ${GlassCard(`
+                        <h4 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <i data-lucide="target" class="text-emerald-400 w-6 h-6"></i> Recommended Action Plan
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${actionPlanHtml}
+                        </div>
+                    `, "p-8")}
+                </div>
+            </div>
+            `;
+        }
+
+        // Initialize App
+        init();
+
+    </script>
+</body>
+</html>
